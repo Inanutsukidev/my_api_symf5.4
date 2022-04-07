@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Client;
 use App\Entity\Facture;
+use App\Entity\FactureProduit;
 use App\Entity\Produit;
 use Faker\Factory as faker;
 use Doctrine\Persistence\ObjectManager;
@@ -21,7 +22,10 @@ class FacturesFixtures extends Fixture implements FixtureInterface, OrderedFixtu
         ];
     }
 
-    public function getOrder()
+    /**
+     * @return integer
+     */
+    public function getOrder(): int
     {
         return 3;
     }
@@ -61,11 +65,30 @@ class FacturesFixtures extends Fixture implements FixtureInterface, OrderedFixtu
                     ->setDateFacturation($date_facturation)
                     ->setDatePaiement($date_paiement);
             }
-            $produit = $manager->find(Produit::class, $faker->numberBetween(1, 10));
 
-            $facture->addProduit($produit);
+            $rand = $faker->numberBetween(1, 4);
+            $unique = [];
+
+            for ($k = 0; $k < $rand; $k++) {
+                $produit = $manager->find(Produit::class, $faker->numberBetween(1, 10));
+
+                if (!in_array($produit->getId(), $unique)) {
+                    $unique[] = $produit->getId();
+
+                    $fp = new FactureProduit;
+                    $fp
+                        ->setFacture($facture)
+                        ->setProduit($produit)
+                        ->setQuantite($faker->numberBetween(1, 3));
+
+                    $manager->persist($fp);
+                } else {
+                    continue;
+                }
+            }
 
             $manager->persist($facture);
+            $manager->flush();
         }
 
         $manager->flush();

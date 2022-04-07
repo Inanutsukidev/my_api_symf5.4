@@ -14,7 +14,10 @@ class ClientsFixtures extends Fixture implements FixtureInterface, OrderedFixtur
 {
     public const CLIENT = "client";
 
-    public function getOrder()
+    /**
+     * @return integer
+     */
+    public function getOrder(): int
     {
         return 1;
     }

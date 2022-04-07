@@ -22,7 +22,10 @@ class ProduitsFixtures extends Fixture implements FixtureInterface, OrderedFixtu
         ];
     }
 
-    public function getOrder()
+    /**
+     * @return integer
+     */
+    public function getOrder(): int
     {
         return 2;
     }

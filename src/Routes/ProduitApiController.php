@@ -10,16 +10,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use RepositoryTrait;
 
 /**
  * @Route("/api", name="api_")
  */
 class ProduitApiController extends ProduitController
 {
+    use RepositoryTrait;
+
     /**
      * @route("/produits", name="list_produit", methods={"GET"})
      */
-    public function listeProduit(SerializerInterface $serializer, EntityManagerInterface $em)
+    public function listProduct(SerializerInterface $serializer, EntityManagerInterface $em)
     {
         try {
             $produits_db = $em->getRepository(Produit::class)->findAll();
@@ -56,7 +59,7 @@ class ProduitApiController extends ProduitController
     /**
      * @Route("/produit", name="app_produit_create", methods={"POST"})
      */
-    public function createProduit(Request $request, SerializerInterface $serializer,  EntityManagerInterface $em): JsonResponse
+    public function createProduct(Request $request, SerializerInterface $serializer,  EntityManagerInterface $em): JsonResponse
     {
         $data = $request->getContent();
 
@@ -72,9 +75,35 @@ class ProduitApiController extends ProduitController
     }
 
     /**
+     * @Route("/produit/{id}", name="app_produit_modify", methods={"PATCH"})
+     */
+    public function modifyProduct(Request $request, EntityManagerInterface $em, $id): JsonResponse
+    {
+        try {
+            $data = $request->query->all();
+            $set_str = $this->makeSettersQuery($data);
+
+            $conn = $em->getConnection();
+
+            $sql = "
+            UPDATE produit
+            SET $set_str
+            WHERE id = $id
+            ;";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->executeQuery();
+        } catch (Exception $e) {
+            return new JsonResponse($e->getMessage(), JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse("Le produit #$id a bien été mis à jour", JsonResponse::HTTP_CREATED);
+    }
+
+    /**
      * @Route("/produit/{id}", name="app_produit_delete", methods={"DELETE"})
      */
-    public function deleteProduit(Produit $produit, EntityManagerInterface $em): JsonResponse
+    public function deleteProduct(Produit $produit, EntityManagerInterface $em): JsonResponse
     {
         try {
             $em->remove($produit);

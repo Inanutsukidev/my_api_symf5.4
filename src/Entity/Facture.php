@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\FactureRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
+use App\Repository\FactureRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=FactureRepository::class)
@@ -68,11 +69,6 @@ class Facture
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="factures")
      */
     private $client;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Produit::class)
-     */
-    private $produits;
 
     public function __construct()
     {
@@ -200,30 +196,6 @@ class Facture
     public function setClient(?Client $client): self
     {
         $this->client = $client;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, produit>
-     */
-    public function getProduits(): Collection
-    {
-        return $this->produits;
-    }
-
-    public function addProduit(produit $produit): self
-    {
-        if (!$this->produits->contains($produit)) {
-            $this->produits[] = $produit;
-        }
-
-        return $this;
-    }
-
-    public function removeProduit(produit $produit): self
-    {
-        $this->produits->removeElement($produit);
 
         return $this;
     }
